@@ -1,11 +1,15 @@
-[gd_scene load_steps=7 format=3 uid="uid://ifccetlmivkq"]
+[gd_scene load_steps=11 format=3 uid="uid://ifccetlmivkq"]
 
-[ext_resource type="Script" uid="uid://d4eo2oracgn6f" path="res://scenes/options_menu.gd" id="1_dhn0l"]
+[ext_resource type="Script" uid="uid://d4eo2oracgn6f" path="res://scripts/options_menu.gd" id="1_dhn0l"]
 [ext_resource type="Texture2D" uid="uid://cuplud6lmltj6" path="res://assets/images/OPTIONS title.png" id="2_dhn0l"]
 [ext_resource type="Texture2D" uid="uid://2krkpy0rld6k" path="res://assets/images/POINT LIMIT.png" id="3_7txom"]
 [ext_resource type="Texture2D" uid="uid://dsavulpls7iiu" path="res://assets/images/LIGHT MODE.png" id="4_binsn"]
+[ext_resource type="Texture2D" uid="uid://cnv6s2m46nxmj" path="res://assets/images/MUSIC.png" id="4_k61yy"]
 [ext_resource type="Texture2D" uid="uid://brnsy5qfcumbb" path="res://assets/images/RESET DATA.png" id="5_2f1bn"]
+[ext_resource type="Texture2D" uid="uid://tbkst2rqswkm" path="res://assets/images/SFX.png" id="5_i80p0"]
 [ext_resource type="Texture2D" uid="uid://col6esxwts2ne" path="res://assets/images/BACK.png" id="6_k61yy"]
+[ext_resource type="Texture2D" uid="uid://cphik7hynbxcv" path="res://assets/images/RESOLUTION.png" id="6_smlwr"]
+[ext_resource type="Texture2D" uid="uid://bstpe67ct1obd" path="res://assets/images/FULLSCREEN.png" id="7_cvq0m"]
 
 [node name="OptionsMenu" type="Control"]
 custom_minimum_size = Vector2(1920, 1080)
@@ -56,23 +60,73 @@ max_value = 999.0
 value = 10.0
 alignment = 1
 
+[node name="HBoxContainer2" type="HBoxContainer" parent="OptionsLayout"]
+layout_mode = 2
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="OptionsLayout/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("4_k61yy")
+stretch_mode = 3
+
+[node name="MusicVolumeSlider" type="HSlider" parent="OptionsLayout/HBoxContainer2"]
+layout_mode = 2
+size_flags_vertical = 1
+max_value = 1.0
+step = 0.01
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="OptionsLayout"]
+layout_mode = 2
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="OptionsLayout/HBoxContainer3"]
+layout_mode = 2
+texture = ExtResource("5_i80p0")
+stretch_mode = 3
+
+[node name="SfxVolumeSlider" type="HSlider" parent="OptionsLayout/HBoxContainer3"]
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="OptionsLayout"]
+layout_mode = 2
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="OptionsLayout/HBoxContainer4"]
+layout_mode = 2
+texture = ExtResource("6_smlwr")
+stretch_mode = 3
+
+[node name="ResolutionOptionButton" type="OptionButton" parent="OptionsLayout/HBoxContainer4"]
+layout_mode = 2
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="OptionsLayout"]
+layout_mode = 2
+alignment = 1
+
+[node name="TextureRect2" type="TextureRect" parent="OptionsLayout/HBoxContainer5"]
+layout_mode = 2
+texture = ExtResource("7_cvq0m")
+
+[node name="FullscreenCheckBox" type="CheckBox" parent="OptionsLayout/HBoxContainer5"]
+layout_mode = 2
+
 [node name="LightModeCheckBox" type="CheckBox" parent="OptionsLayout"]
 layout_mode = 2
 icon = ExtResource("4_binsn")
 flat = true
 icon_alignment = 1
 
-[node name="ResetDataButton" type="Button" parent="OptionsLayout"]
+[node name="ResetDataButton" type="TextureButton" parent="OptionsLayout"]
 layout_mode = 2
-icon = ExtResource("5_2f1bn")
-flat = true
-icon_alignment = 1
+texture_normal = ExtResource("5_2f1bn")
+stretch_mode = 3
 
-[node name="BackButton" type="Button" parent="OptionsLayout"]
+[node name="BackButton" type="TextureButton" parent="OptionsLayout"]
 layout_mode = 2
-icon = ExtResource("6_k61yy")
-flat = true
-icon_alignment = 1
+texture_normal = ExtResource("6_k61yy")
+stretch_mode = 3
 
 [connection signal="value_changed" from="OptionsLayout/HBoxContainer/PointLimitSpinBox" to="." method="_on_point_limit_spin_box_value_changed"]
 [connection signal="toggled" from="OptionsLayout/LightModeCheckBox" to="." method="_on_light_mode_check_box_toggled"]

@@ -1,9 +1,27 @@
-[gd_scene load_steps=11 format=3 uid="uid://6mg0218wr8d3"]
+[gd_scene load_steps=15 format=3 uid="uid://6mg0218wr8d3"]
 
-[ext_resource type="Script" uid="uid://6thixcfensa5" path="res://scenes/game.gd" id="1_lbhrr"]
+[ext_resource type="Script" uid="uid://6thixcfensa5" path="res://scripts/game.gd" id="1_lbhrr"]
 [ext_resource type="Texture2D" uid="uid://burg6bflapsmf" path="res://assets/images/LINE.png" id="1_yqjtg"]
 [ext_resource type="FontFile" uid="uid://bpa3b045tjca3" path="res://assets/fonts/8-BIT WONDER.TTF" id="2_lnu2h"]
+[ext_resource type="Shader" uid="uid://dfqojpieyk4b8" path="res://shaders/star_parallax.gdshader" id="2_p57ef"]
 [ext_resource type="Texture2D" uid="uid://t5qr2juqsxll" path="res://assets/images/ACHIEVEMENT BANNER.png" id="3_lnu2h"]
+[ext_resource type="Texture2D" uid="uid://c23n7o0b84fra" path="res://assets/images/X.png" id="5_iywne"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p57ef"]
+shader = ExtResource("2_p57ef")
+shader_parameter/ball_position_normalized = Vector2(0.5, 0.5)
+shader_parameter/parallax_strength = 0.1
+shader_parameter/star_density = 0.995
+shader_parameter/base_brightness = 0.5
+shader_parameter/time_scale = 0.05
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_u5sy4"]
+shader = ExtResource("2_p57ef")
+shader_parameter/ball_position_normalized = Vector2(0.5, 0.5)
+shader_parameter/parallax_strength = 0.05
+shader_parameter/star_density = 0.995
+shader_parameter/base_brightness = 0.5
+shader_parameter/time_scale = 0.05
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lbhrr"]
 size = Vector2(67, 333)
@@ -78,7 +96,8 @@ _data = {
 [node name="Game" type="Node2D"]
 script = ExtResource("1_lbhrr")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="BackgroundShaderRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_p57ef")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -89,6 +108,7 @@ grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
 [node name="CenterLine" type="TextureRect" parent="."]
+material = SubResource("ShaderMaterial_u5sy4")
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -136,9 +156,9 @@ theme_override_font_sizes/font_size = 70
 text = "0"
 
 [node name="AIScoreLabel" type="Label" parent="."]
-offset_left = 1807.0
+offset_left = 1760.0
 offset_top = 4.0
-offset_right = 1877.0
+offset_right = 1830.0
 offset_bottom = 74.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource("2_lnu2h")
@@ -172,3 +192,10 @@ stretch_mode = 2
 libraries = {
 &"": SubResource("AnimationLibrary_p57ef")
 }
+
+[node name="MenuButton" type="TextureButton" parent="."]
+offset_left = 1827.0
+offset_right = 2059.0
+offset_bottom = 237.0
+scale = Vector2(0.4, 0.4)
+texture_normal = ExtResource("5_iywne")
