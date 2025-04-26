@@ -1,0 +1,75 @@
+[gd_scene load_steps=8 format=3 uid="uid://ecq06la4raj4"]
+
+[ext_resource type="Texture2D" uid="uid://pvskex7yxq2f" path="res://assets/images/PONG COLOURS TRANSPARENT.png" id="1_bqqt6"]
+[ext_resource type="Script" uid="uid://be35lynj2gglo" path="res://scenes/main_menu.gd" id="1_oa1go"]
+[ext_resource type="Texture2D" uid="uid://tr1s1vncd2rc" path="res://assets/images/PLAY.png" id="2_wu84c"]
+[ext_resource type="Texture2D" uid="uid://cgx8ygrcdpotv" path="res://assets/images/CHANGE NAME.png" id="3_8ln24"]
+[ext_resource type="Texture2D" uid="uid://djo66l4vgs1vs" path="res://assets/images/OPTIONS.png" id="5_tbmy8"]
+[ext_resource type="Texture2D" uid="uid://20t8rp360jfu" path="res://assets/images/ACHIEVEMENTS.png" id="6_jk1qb"]
+[ext_resource type="Texture2D" uid="uid://bgogee1b7erpf" path="res://assets/images/QUIT.png" id="7_5dd4i"]
+
+[node name="MainMenu" type="Control"]
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_oa1go")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="MenuLayout" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="MenuLayout"]
+layout_mode = 2
+texture = ExtResource("1_bqqt6")
+stretch_mode = 5
+
+[node name="PlayButton" type="Button" parent="MenuLayout"]
+layout_mode = 2
+icon = ExtResource("2_wu84c")
+flat = true
+icon_alignment = 1
+
+[node name="ChangeNameButton" type="Button" parent="MenuLayout"]
+layout_mode = 2
+icon = ExtResource("3_8ln24")
+flat = true
+icon_alignment = 1
+
+[node name="OptionsButton" type="Button" parent="MenuLayout"]
+layout_mode = 2
+icon = ExtResource("5_tbmy8")
+flat = true
+icon_alignment = 1
+
+[node name="AchievementsButton" type="Button" parent="MenuLayout"]
+layout_mode = 2
+icon = ExtResource("6_jk1qb")
+flat = true
+icon_alignment = 1
+
+[node name="QuitButton" type="Button" parent="MenuLayout"]
+layout_mode = 2
+icon = ExtResource("7_5dd4i")
+flat = true
+icon_alignment = 1
+
+[connection signal="pressed" from="MenuLayout/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="MenuLayout/ChangeNameButton" to="." method="_on_change_name_button_pressed"]
+[connection signal="pressed" from="MenuLayout/OptionsButton" to="." method="_on_options_button_pressed"]
+[connection signal="pressed" from="MenuLayout/AchievementsButton" to="." method="_on_achievements_button_pressed"]
+[connection signal="pressed" from="MenuLayout/QuitButton" to="." method="_on_quit_button_pressed"]

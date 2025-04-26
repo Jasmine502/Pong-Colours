@@ -1,0 +1,60 @@
+[gd_scene load_steps=6 format=3 uid="uid://cywfidnw73wr4"]
+
+[ext_resource type="Script" uid="uid://dy0ro5uw2vaue" path="res://scenes/change_name_menu.gd" id="1_6vhbb"]
+[ext_resource type="Texture2D" uid="uid://chl1lq3i1alec" path="res://assets/images/ENTER YOUR NAME.png" id="1_uc7tk"]
+[ext_resource type="FontFile" uid="uid://bpa3b045tjca3" path="res://assets/fonts/8-BIT WONDER.TTF" id="2_6vhbb"]
+[ext_resource type="Texture2D" uid="uid://by6mxho1rpnkn" path="res://assets/images/SAVE NAME.png" id="3_i3b8n"]
+[ext_resource type="Texture2D" uid="uid://col6esxwts2ne" path="res://assets/images/BACK.png" id="4_d4m8q"]
+
+[node name="ChangeNameMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_6vhbb")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="NameLayout" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="NameLayout"]
+layout_mode = 2
+texture = ExtResource("1_uc7tk")
+stretch_mode = 3
+
+[node name="NameLineEdit" type="LineEdit" parent="NameLayout"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_6vhbb")
+theme_override_font_sizes/font_size = 50
+placeholder_text = "Player Name"
+alignment = 1
+flat = true
+
+[node name="SaveButton" type="Button" parent="NameLayout"]
+layout_mode = 2
+icon = ExtResource("3_i3b8n")
+flat = true
+icon_alignment = 1
+
+[node name="BackButton" type="Button" parent="NameLayout"]
+layout_mode = 2
+icon = ExtResource("4_d4m8q")
+flat = true
+icon_alignment = 1
+
+[connection signal="pressed" from="NameLayout/SaveButton" to="." method="_on_save_button_pressed"]
+[connection signal="pressed" from="NameLayout/BackButton" to="." method="_on_back_button_pressed"]

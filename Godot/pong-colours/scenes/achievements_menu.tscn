@@ -1,0 +1,110 @@
+[gd_scene load_steps=12 format=3 uid="uid://flu7t317wy0e"]
+
+[ext_resource type="Script" uid="uid://45bfex3ih6ia" path="res://scenes/achievements_menu.gd" id="1_4qq1x"]
+[ext_resource type="Texture2D" uid="uid://ce5141vnb62sh" path="res://assets/achievements/ACHIEVEMENTS title.png" id="1_c2xea"]
+[ext_resource type="Texture2D" uid="uid://bv3bhktjtvsya" path="res://assets/achievements/PONG GOD.png" id="2_4qq1x"]
+[ext_resource type="Texture2D" uid="uid://4lvpjwoomb07" path="res://assets/achievements/PONG SLAY.png" id="3_0pdwi"]
+[ext_resource type="Texture2D" uid="uid://cowjqpemrm057" path="res://assets/achievements/PONGING OUT.png" id="4_hkapp"]
+[ext_resource type="Texture2D" uid="uid://cop2ki3166c5" path="res://assets/achievements/PONG CHAMELEON.png" id="5_txxe2"]
+[ext_resource type="Texture2D" uid="uid://bjvhoh0a7q46v" path="res://assets/achievements/TWO OF A KIND.png" id="6_u113w"]
+[ext_resource type="Texture2D" uid="uid://cvvyy3y5a2q5y" path="res://assets/achievements/GAY CHAMELEON.png" id="7_jsvuo"]
+[ext_resource type="Texture2D" uid="uid://dbrrdxkmjlk0n" path="res://assets/achievements/GAMING TRIFECTA.png" id="8_rmhic"]
+[ext_resource type="Texture2D" uid="uid://bu8xakmmhlw31" path="res://assets/achievements/PONG COLOURS.png" id="9_eaovx"]
+[ext_resource type="Texture2D" uid="uid://ckx4ltfv1doxe" path="res://assets/achievements/ach back.png" id="10_ppcub"]
+
+[node name="AchievementsMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_4qq1x")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="AchievementsLayout" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="AchievementsLayout"]
+layout_mode = 2
+texture = ExtResource("1_c2xea")
+stretch_mode = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="AchievementsLayout"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+alignment = 1
+
+[node name="Ach_PongGod_Texture" type="TextureRect" parent="AchievementsLayout/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_4qq1x")
+stretch_mode = 3
+
+[node name="Ach_PongSlay_Texture" type="TextureRect" parent="AchievementsLayout/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_0pdwi")
+stretch_mode = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="AchievementsLayout"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+alignment = 1
+
+[node name="Ach_PongingOut_Texture" type="TextureRect" parent="AchievementsLayout/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("4_hkapp")
+stretch_mode = 3
+
+[node name="Ach_PongChameleon_Texture" type="TextureRect" parent="AchievementsLayout/HBoxContainer2"]
+layout_mode = 2
+texture = ExtResource("5_txxe2")
+stretch_mode = 3
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="AchievementsLayout"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+alignment = 1
+
+[node name="Ach_Pong_TwoOfAKind" type="TextureRect" parent="AchievementsLayout/HBoxContainer3"]
+layout_mode = 2
+texture = ExtResource("6_u113w")
+stretch_mode = 3
+
+[node name="Ach_GayChameleon_Texture" type="TextureRect" parent="AchievementsLayout/HBoxContainer3"]
+layout_mode = 2
+texture = ExtResource("7_jsvuo")
+stretch_mode = 3
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="AchievementsLayout"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+alignment = 1
+
+[node name="Ach_GamingTrifecta_Texture" type="TextureRect" parent="AchievementsLayout/HBoxContainer4"]
+layout_mode = 2
+texture = ExtResource("8_rmhic")
+stretch_mode = 3
+
+[node name="Ach_PongColours_Texture" type="TextureRect" parent="AchievementsLayout/HBoxContainer4"]
+layout_mode = 2
+texture = ExtResource("9_eaovx")
+stretch_mode = 3
+
+[node name="BackButton" type="Button" parent="AchievementsLayout"]
+layout_mode = 2
+icon = ExtResource("10_ppcub")
+flat = true
+icon_alignment = 1
+
+[connection signal="pressed" from="AchievementsLayout/BackButton" to="." method="_on_back_button_pressed"]
