@@ -60,7 +60,7 @@ tracks/1/keys = {
 }
 
 [sub_resource type="Animation" id="Animation_lbhrr"]
-resource_name = "show_banner"
+resource_name = "ShowBanner"
 length = 4.0
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -90,7 +90,7 @@ tracks/1/keys = {
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_p57ef"]
 _data = {
 &"RESET": SubResource("Animation_iywne"),
-&"show_banner": SubResource("Animation_lbhrr")
+&"ShowBanner": SubResource("Animation_lbhrr")
 }
 
 [node name="Game" type="Node2D"]

@@ -10,6 +10,8 @@ extends Node2D
 @onready var ai_score_label = $AIScoreLabel
 @onready var player_name_label = $PlayerNameLabel
 @onready var menu_button = $MenuButton
+@onready var achievement_banner = $AchievementBanner
+@onready var achievement_animator = $AchievementAnimator
 
 var background_material: ShaderMaterial
 
@@ -17,14 +19,19 @@ var background_material: ShaderMaterial
 const PADDLE_HIT_PARTICLES = preload("res://scenes/effects/paddle_hit_particles.tscn")
 
 # --- Game Settings ---
-var point_limit = 5
+var current_game_point_limit: int = 5
 var player_score = 0
 var ai_score = 0
 const DEFAULT_PLAYER_NAME = "Player"
 
+# --- Constants for Paddle Paths ---
+const COLOUR_PADDLE_PATH = "res://assets/paddles/colours/"
+const MEME_PADDLE_PATH = "res://assets/paddles/memes/"
+const PRIDE_PADDLE_PATH = "res://assets/paddles/pride/"
+
 # --- Fixed Paddle Positions ---
 const PLAYER_PADDLE_X: float = 50.0
-const AI_PADDLE_X_OFFSET: float = 50.0 # Offset from right edge
+const AI_PADDLE_X_OFFSET: float = 50.0
 
 # --- Movement & Physics ---
 const PADDLE_SPEED = 500.0
@@ -70,157 +77,202 @@ func _ready():
 		await get_tree().process_frame
 		screen_size = get_viewport_rect().size
 		if screen_size == Vector2.ZERO:
-			printerr("Game: Failed to get valid screen size after waiting. Using fallback.")
+			printerr("Game: Failed to get valid screen size. Using fallback.")
 			screen_size = Vector2(1152, 648)
 
 	ai_target_y = screen_size.y / 2.0
 
-	# Get shader material
+	if DataManager:
+		if DataManager.has_signal("achievement_unlocked"):
+			DataManager.achievement_unlocked.connect(_on_data_manager_achievement_unlocked)
+			print("Game: Connected to DataManager achievement signal.")
+		else:
+			printerr("Game: DataManager does not have the 'achievement_unlocked' signal!")
+	else:
+		printerr("Game: DataManager not found, cannot connect achievement signal.")
+
+	if not is_instance_valid(achievement_banner): printerr("Game: AchievementBanner node NOT found!")
+	if not is_instance_valid(achievement_animator): printerr("Game: AchievementAnimator node NOT found!")
+
 	if is_instance_valid(background_shader_rect):
 		if background_shader_rect.material is ShaderMaterial:
 			background_material = background_shader_rect.material as ShaderMaterial
 			print("Game: Found Background ShaderMaterial.")
 		else:
-			printerr("Game: BackgroundShaderRect found, but its Material is not a ShaderMaterial!")
+			printerr("Game: BackgroundShaderRect Material is not ShaderMaterial!")
 			background_material = null
 	else:
 		printerr("Game: BackgroundShaderRect node NOT found!")
 		background_material = null
 
-	# Connect signals
 	if is_instance_valid(menu_button):
 		menu_button.pressed.connect(_on_menu_button_pressed)
-	else: printerr("Game: MenuButton node NOT found.")
+	else:
+		printerr("Game: MenuButton node NOT found.")
 
-	# Letter colors setup... (same as before)
-	LETTER_COLORS = { "A": Color.html("#F2A2B1"), "B": Color.html("#0000FF"), "C": Color.html("#00FFFF"), "D": Color.html("#FDDA0D"), "E": Color.html("#A7C9A7"), "F": Color.html("#FF00FF"), "G": Color.html("#008000"), "H": Color.html("#3FFF00"), "I": Color.html("#4B0082"), "J": Color.html("#00A86B"), "K": Color.html("#C3B091"), "L": Color.html("#FFFACD"), "M": Color.html("#FF00FF"), "N": Color.html("#39FF14"), "O": Color.html("#FFA500"), "P": Color.html("#800080"), "Q": Color.html("#D4C4AE"), "R": Color.html("#FF0000"), "S": Color.html("#FF2400"), "T": Color.html("#F94C00"), "U": Color.html("#8878C3"), "V": Color.html("#EE82EE"), "W": Color.html("#F5DEB3"), "X": Color.html("#66BFBF"), "Y": Color.html("#FFFF00"), "Z": Color.html("#3E646C"), "DEFAULT": Color.WHITE }
+	LETTER_COLORS = { "A": Color.html("#F2A2B1"),"B": Color.html("#0000FF"),"C": Color.html("#00FFFF"),"D": Color.html("#FDDA0D"),"E": Color.html("#A7C9A7"),"F": Color.html("#FF00FF"),"G": Color.html("#008000"),"H": Color.html("#3FFF00"),"I": Color.html("#4B0082"),"J": Color.html("#00A86B"),"K": Color.html("#C3B091"),"L": Color.html("#FFFACD"),"M": Color.html("#FF00FF"),"N": Color.html("#39FF14"),"O": Color.html("#FFA500"),"P": Color.html("#800080"),"Q": Color.html("#D4C4AE"),"R": Color.html("#FF0000"),"S": Color.html("#FF2400"),"T": Color.html("#F94C00"),"U": Color.html("#8878C3"),"V": Color.html("#EE82EE"),"W": Color.html("#F5DEB3"),"X": Color.html("#66BFBF"),"Y": Color.html("#FFFF00"),"Z": Color.html("#3E646C"),"DEFAULT": Color.WHITE }
 
-	# Load/Apply textures... (same as before)
-	_set_player_name_color(DEFAULT_PLAYER_NAME)
-	print("Game: Using default settings (Point Limit:", point_limit, ")")
-	player_paddle_texture_path = _load_random_texture_from_folders(["res://assets/paddles/colours/", "res://assets/paddles/memes/", "res://assets/paddles/pride/"])
-	ai_paddle_texture_path = _load_random_texture_from_folders(["res://assets/paddles/colours/", "res://assets/paddles/memes/", "res://assets/paddles/pride/"])
+	if DataManager:
+		_set_player_name_color(DataManager.get_player_name())
+		current_game_point_limit = DataManager.get_point_limit()
+	else:
+		printerr("Game: DataManager not found! Using defaults.")
+		_set_player_name_color(DEFAULT_PLAYER_NAME)
+		current_game_point_limit = 5
+
+	print("Game: Point Limit for this match:", current_game_point_limit)
+
+	player_paddle_texture_path = _load_random_texture_from_folders([COLOUR_PADDLE_PATH, MEME_PADDLE_PATH, PRIDE_PADDLE_PATH])
+	ai_paddle_texture_path = _load_random_texture_from_folders([COLOUR_PADDLE_PATH, MEME_PADDLE_PATH, PRIDE_PADDLE_PATH])
 	ball_texture_path = _load_random_texture_from_folders(["res://assets/balls/colours/", "res://assets/balls/pride/"])
+	print("Game: Player Paddle:", player_paddle_texture_path.get_file())
+	print("Game: AI Paddle:", ai_paddle_texture_path.get_file())
 	var player_tex = load(player_paddle_texture_path) if not player_paddle_texture_path.is_empty() else null
-	if player_tex and player_paddle.has_node("Sprite"): player_paddle.get_node("Sprite").texture = player_tex
-	elif not player_tex: printerr("Failed to load player paddle texture: ", player_paddle_texture_path)
-	else: printerr("Player paddle does not have a Sprite child node.")
+	if player_tex and is_instance_valid(player_paddle) and player_paddle.has_node("Sprite"):
+		player_paddle.get_node("Sprite").texture = player_tex
+	else:
+		printerr("Player paddle texture/sprite issue.")
 	var ai_tex = load(ai_paddle_texture_path) if not ai_paddle_texture_path.is_empty() else null
-	if ai_tex and ai_paddle.has_node("Sprite"): ai_paddle.get_node("Sprite").texture = ai_tex
-	elif not ai_tex: printerr("Failed to load AI paddle texture: ", ai_paddle_texture_path)
-	else: printerr("AI paddle does not have a Sprite child node.")
+	if ai_tex and is_instance_valid(ai_paddle) and ai_paddle.has_node("Sprite"):
+		ai_paddle.get_node("Sprite").texture = ai_tex
+	else:
+		printerr("AI paddle texture/sprite issue.")
 	var ball_tex = load(ball_texture_path) if not ball_texture_path.is_empty() else null
-	if ball_tex and ball.has_node("Sprite"): ball.get_node("Sprite").texture = ball_tex
-	elif not ball_tex: printerr("Failed to load ball texture: ", ball_texture_path)
-	else: printerr("Ball does not have a Sprite child node.")
+	if ball_tex and is_instance_valid(ball) and ball.has_node("Sprite"):
+		ball.get_node("Sprite").texture = ball_tex
+	else:
+		printerr("Ball texture/sprite issue.")
 
-	# --- Set Initial Paddle Positions using Constants ---
-	player_paddle.global_position = Vector2(PLAYER_PADDLE_X, screen_size.y / 2.0)
-	ai_paddle.global_position = Vector2(screen_size.x - AI_PADDLE_X_OFFSET, screen_size.y / 2.0)
+	if DataManager:
+		if not player_paddle_texture_path.is_empty() and player_paddle_texture_path == ai_paddle_texture_path:
+			DataManager.unlock_achievement("TWO OF A KIND")
+		if not player_paddle_texture_path.is_empty():
+			DataManager.add_player_paddle_used(player_paddle_texture_path)
+
+	if is_instance_valid(player_paddle):
+		player_paddle.global_position = Vector2(PLAYER_PADDLE_X, screen_size.y / 2.0)
+	if is_instance_valid(ai_paddle):
+		ai_paddle.global_position = Vector2(screen_size.x - AI_PADDLE_X_OFFSET, screen_size.y / 2.0)
 
 	_reset_ball()
 	print("Game: _ready() FINISHED")
 
 
 func _physics_process(delta):
-	if game_over_flag: return
-
-	if player_score >= point_limit or ai_score >= point_limit:
-		if not game_over_flag: _game_over()
+	if game_over_flag:
 		return
+	if player_score >= current_game_point_limit or ai_score >= current_game_point_limit:
+		if not game_over_flag:
+			_game_over()
+		return # Stop processing after game over is initiated
 
-	# --- Handle Movement ---
 	_handle_player_input(delta)
 	_handle_ai_movement(delta)
 
-	# --- Force Paddle X Positions ---
-	# Do this *after* move_and_slide has potentially slightly shifted them
 	if is_instance_valid(player_paddle):
 		player_paddle.global_position.x = PLAYER_PADDLE_X
-	if is_instance_valid(ai_paddle) and screen_size.x > 0: # Check screen_size too
+	if is_instance_valid(ai_paddle) and screen_size.x > 0:
 		ai_paddle.global_position.x = screen_size.x - AI_PADDLE_X_OFFSET
 
-	# --- Handle Ball ---
-	_handle_ball_movement(delta) # Ball moves *after* paddles are locked in X
+	_handle_ball_movement(delta)
 
-	# --- Update Shader ---
 	if is_instance_valid(background_material) and screen_size != Vector2.ZERO:
-		var normalized_ball_pos = ball.global_position / screen_size
-		background_material.set_shader_parameter("ball_position_normalized", normalized_ball_pos)
+		if is_instance_valid(ball):
+			background_material.set_shader_parameter("ball_position_normalized", ball.global_position / screen_size)
 
-# --- Menu Button Handler (same) ---
+
+func _on_data_manager_achievement_unlocked(achievement_name: String):
+	print("Game received achievement unlock signal:", achievement_name)
+	if not is_instance_valid(achievement_banner) or not is_instance_valid(achievement_animator):
+		printerr("Cannot show achievement banner, nodes missing.")
+		return
+	var anim_name = "ShowBanner"
+	if achievement_animator.is_playing() and achievement_animator.current_animation == anim_name:
+		print("Banner animation '", anim_name,"' already playing, skipping.")
+		return
+	if achievement_banner is Label:
+		(achievement_banner as Label).text = "[center]Achievement Unlocked!\n[b]" + achievement_name.capitalize() + "[/b][/center]"
+	elif achievement_banner is TextureRect:
+		pass # Optional: Load specific texture here
+
+	if achievement_animator.has_animation(anim_name):
+		print("Playing achievement animation:", anim_name)
+		achievement_animator.play(anim_name)
+	else:
+		printerr("Achievement animation '", anim_name, "' not found in AchievementAnimator node!")
+
+
 func _on_menu_button_pressed():
-	print("Game: Menu button pressed, returning to main menu.")
+	print("Game: Menu button pressed.")
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
-# --- Player Name Coloring (same) ---
+
 func _set_player_name_color(player_name_text: String):
-	# ... (code is unchanged) ...
-	var bbcode_text = "[center]"
+	var bbcode = "[center]"
 	for letter in player_name_text:
 		var color = get_color_for_letter(letter)
-		bbcode_text += "[color=" + color.to_html(false) + "]" + letter + "[/color]"
-	bbcode_text += "[/center]"
-	if player_name_label: player_name_label.text = bbcode_text
+		bbcode += "[color=" + color.to_html(false) + "]" + letter + "[/color]"
+	bbcode += "[/center]"
+	if is_instance_valid(player_name_label):
+		player_name_label.text = bbcode
+
 
 func get_color_for_letter(letter: String) -> Color:
-	# ... (code is unchanged) ...
-	var upper_letter = letter.to_upper()
-	if LETTER_COLORS.has(upper_letter): return LETTER_COLORS[upper_letter]
-	elif LETTER_COLORS.has("DEFAULT"): return LETTER_COLORS["DEFAULT"]
-	else: return Color.WHITE
+	var upper = letter.to_upper()
+	if LETTER_COLORS.has(upper):
+		return LETTER_COLORS[upper]
+	elif LETTER_COLORS.has("DEFAULT"):
+		return LETTER_COLORS["DEFAULT"]
+	else:
+		return Color.WHITE
 
-# --- Texture Loading (same) ---
+
 func _load_random_texture_from_folders(folder_paths: Array[String]) -> String:
-	# ... (code is unchanged) ...
 	var all_files: Array[String] = []
-	for folder_path in folder_paths:
-		var dir = DirAccess.open(folder_path)
+	for fp in folder_paths:
+		var dir = DirAccess.open(fp)
 		if dir:
 			dir.list_dir_begin()
-			var file_name = dir.get_next()
-			while file_name != "":
-				if not dir.current_is_dir() and (file_name.ends_with(".png") or file_name.ends_with(".PNG")):
-					all_files.append(folder_path.path_join(file_name))
-				file_name = dir.get_next()
+			var fn = dir.get_next()
+			while fn != "":
+				if not dir.current_is_dir() and (fn.ends_with(".png") or fn.ends_with(".PNG")):
+					all_files.append(fp.path_join(fn))
+				fn = dir.get_next()
 		else:
-			printerr("Could not open directory: ", folder_path)
+			printerr("Could not open directory: ", fp)
+
 	if all_files.is_empty():
-		printerr("No PNG textures found in folders: ", folder_paths)
+		printerr("No PNGs in folders: ", folder_paths)
 		return ""
 	else:
 		return all_files.pick_random()
 
 
-# --- Player Movement (no changes needed here) ---
 func _handle_player_input(delta):
+	if not is_instance_valid(player_paddle):
+		return
 	var direction = Input.get_axis("move_up", "move_down")
 	var target_velocity_y: float = direction * PADDLE_SPEED
 	var lerp_weight: float = 1.0 - exp(-delta * PADDLE_SMOOTHING)
 	player_paddle.velocity.y = lerp(player_paddle.velocity.y, target_velocity_y, lerp_weight)
-	player_paddle.move_and_slide() # Move based on velocity
-	# X position will be forced back in _physics_process
-	# Clamp Y position
+	player_paddle.move_and_slide()
 	var player_sprite = player_paddle.get_node_or_null("Sprite") as Sprite2D
-	if player_sprite and player_sprite.texture:
+	if player_sprite and player_sprite.texture and screen_size.y > 0:
 		var half_height = player_sprite.get_rect().size.y / 2.0 * player_paddle.scale.y
-		player_paddle.global_position.y = clamp(player_paddle.global_position.y, half_height, screen_size.y - half_height)
+		player_paddle.global_position.y = clampf(player_paddle.global_position.y, half_height, screen_size.y - half_height)
 
-# --- AI Movement (no changes needed here) ---
+
 func _handle_ai_movement(delta):
-	if not is_instance_valid(ball) or not is_instance_valid(ai_paddle): return
-
+	if not is_instance_valid(ball) or not is_instance_valid(ai_paddle):
+		return
 	var distance_to_ball: float = abs(ball.global_position.x - ai_paddle.global_position.x)
 	var current_y: float = ai_paddle.global_position.y
-
 	var predicted_ball_y: float = ball.global_position.y
 	if screen_size.x != 0.0:
 		var prediction_offset = ball.velocity.y * AI_PREDICTION_FACTOR * (distance_to_ball / screen_size.x)
 		predicted_ball_y = ball.global_position.y + prediction_offset
-	else: pass
-
-	predicted_ball_y = clamp(predicted_ball_y, 0.0, screen_size.y)
-
+	if screen_size.y > 0:
+		predicted_ball_y = clampf(predicted_ball_y, 0.0, screen_size.y)
 	if distance_to_ball < AI_REACTION_DISTANCE_THRESHOLD:
 		ai_target_y = predicted_ball_y
 	else:
@@ -233,164 +285,169 @@ func _handle_ai_movement(delta):
 	var target_velocity_y: float = direction * (PADDLE_SPEED * AI_SPEED_MODIFIER)
 	var lerp_weight: float = 1.0 - exp(-delta * AI_SMOOTHING)
 	ai_paddle.velocity.y = lerp(ai_paddle.velocity.y, target_velocity_y, lerp_weight)
-
-	ai_paddle.move_and_slide() # Move based on velocity
-	# X position will be forced back in _physics_process
-	# Clamp Y position
+	ai_paddle.move_and_slide()
 	var ai_sprite = ai_paddle.get_node_or_null("Sprite") as Sprite2D
-	if ai_sprite and ai_sprite.texture:
+	if ai_sprite and ai_sprite.texture and screen_size.y > 0:
 		var half_height: float = ai_sprite.get_rect().size.y / 2.0 * ai_paddle.scale.y
-		ai_paddle.global_position.y = clamp(ai_paddle.global_position.y, half_height, screen_size.y - half_height)
+		ai_paddle.global_position.y = clampf(ai_paddle.global_position.y, half_height, screen_size.y - half_height)
 
-# --- Ball Movement & Collision (Edge hit logic remains, but might be less critical now) ---
+
 func _handle_ball_movement(delta):
-	if not is_instance_valid(ball): return
-
+	if not is_instance_valid(ball):
+		return
 	ball.velocity = ball_velocity.normalized() * ball_speed
 	var collision_info = ball.move_and_collide(ball.velocity * delta)
-
 	if collision_info:
 		var normal: Vector2 = collision_info.get_normal()
 		var collider = collision_info.get_collider()
 		var collision_pos: Vector2 = collision_info.get_position()
 
 		if collider == player_paddle or collider == ai_paddle:
-			# Paddle Collision
-			if is_instance_valid(collider): _emit_collision_particles(collider, collision_pos, normal)
-			else: printerr("Collider instance invalid...")
-
+			if is_instance_valid(collider):
+				_emit_collision_particles(collider, collision_pos, normal)
 			var bounced_velocity: Vector2 = ball_velocity.bounce(normal)
 			var is_face_hit: bool = abs(normal.x) > FACE_HIT_NORMAL_THRESHOLD
 			var is_edge_hit: bool = abs(normal.y) > EDGE_HIT_NORMAL_THRESHOLD and not is_face_hit
 
 			if is_face_hit:
 				ball_speed += BALL_SPEED_INCREASE
-				var paddle_shape_node = collider.get_node_or_null("CollisionShape2D")
-				if paddle_shape_node and paddle_shape_node.shape is RectangleShape2D:
-					var paddle_height: float = paddle_shape_node.shape.size.y * collider.scale.y
-					if paddle_height != 0.0:
-						var hit_pos_relative: float = clampf((ball.global_position.y - collider.global_position.y) / (paddle_height / 2.0), -1.0, 1.0)
+				var shape_node = collider.get_node_or_null("CollisionShape2D")
+				if shape_node and shape_node.shape is RectangleShape2D:
+					var h: float = shape_node.shape.size.y * collider.scale.y
+					if h != 0.0:
+						var rel_y: float = clampf((ball.global_position.y - collider.global_position.y) / (h / 2.0), -1.0, 1.0)
 						var influence: float = 0.6
-						var adjustment_angle_rad: float = PI * influence * -hit_pos_relative / 2.0
-						var new_angle: float = bounced_velocity.angle() + adjustment_angle_rad
-						var max_angle_deviation: float = deg_to_rad(70.0)
-						if bounced_velocity.x > 0.0: new_angle = clampf(new_angle, -max_angle_deviation, max_angle_deviation)
+						var adj_angle: float = PI * influence * -rel_y / 2.0
+						var new_angle: float = bounced_velocity.angle() + adj_angle
+						var max_dev: float = deg_to_rad(70.0)
+						if bounced_velocity.x > 0.0:
+							new_angle = clampf(new_angle, -max_dev, max_dev)
 						else:
-							if not (new_angle >= -PI + max_angle_deviation and new_angle <= PI - max_angle_deviation):
-								new_angle = sign(new_angle) * (PI - max_angle_deviation)
+							if not (new_angle >= -PI + max_dev and new_angle <= PI - max_dev):
+								new_angle = sign(new_angle) * (PI - max_dev)
 						ball_velocity = Vector2.from_angle(new_angle).normalized() * ball_speed
-					else: ball_velocity = bounced_velocity.normalized() * ball_speed
-				else: ball_velocity = bounced_velocity.normalized() * ball_speed
-			elif is_edge_hit:
-				# Edge Hit Logic (Still useful for bounce feel, less critical for sticking now)
-				var push_direction: float = 1.0 if collider == player_paddle else -1.0
-				ball_velocity.x = push_direction * EDGE_HIT_SET_HORIZONTAL_SPEED
+					else:
+						ball_velocity = bounced_velocity.normalized() * ball_speed
+				else:
+					ball_velocity = bounced_velocity.normalized() * ball_speed
+			elif is_edge_hit: # Correct 'elif' placement
+				var push_dir: float = 1.0 if collider == player_paddle else -1.0
+				ball_velocity.x = push_dir * EDGE_HIT_SET_HORIZONTAL_SPEED
 				ball_velocity.y = bounced_velocity.y * EDGE_HIT_VERTICAL_DAMPEN
-				print("Edge hit velocity. New vel:", ball_velocity)
-			else:
-				ball_velocity = bounced_velocity # Corner hit
+			else: # Corner hit
+				ball_velocity = bounced_velocity
 
-			# Separation push remains important
 			ball.global_position += normal * COLLISION_SEPARATION_MULTIPLIER
-
-		else: # Wall Collision
+		else: # Wall or other object collision
 			ball_velocity = ball_velocity.bounce(normal)
 
-	# Screen Boundary Checks (same)
+	# Screen boundary checks
 	var ball_sprite = ball.get_node_or_null("Sprite") as Sprite2D
+	if ball_sprite and ball_sprite.texture and screen_size.y > 0:
+		var ball_hh: float = ball_sprite.get_rect().size.y / 2.0 * ball.scale.y
+		if ball.global_position.y <= ball_hh and ball_velocity.y < 0.0:
+			ball_velocity.y *= -1.0
+			ball.global_position.y = ball_hh + 0.1
+		if ball.global_position.y >= screen_size.y - ball_hh and ball_velocity.y > 0.0:
+			ball_velocity.y *= -1.0
+			ball.global_position.y = screen_size.y - ball_hh - 0.1
+
+	# Scoring Checks
+	var ball_hw: float = 10.0
 	if ball_sprite and ball_sprite.texture:
-		var ball_half_height: float = ball_sprite.get_rect().size.y / 2.0 * ball.scale.y
-		if ball.global_position.y <= ball_half_height and ball_velocity.y < 0.0:
-			ball_velocity.y *= -1.0; ball.global_position.y = ball_half_height + 0.1
-		if ball.global_position.y >= screen_size.y - ball_half_height and ball_velocity.y > 0.0:
-			ball_velocity.y *= -1.0; ball.global_position.y = screen_size.y - ball_half_height - 0.1
+		ball_hw = ball_sprite.get_rect().size.x / 2.0 * ball.scale.x
+	var scored = false
+	if not scored and screen_size.x > 0 and ball.global_position.x > screen_size.x + ball_hw:
+		scored = true
+		player_score += 1
+		_update_score_labels()
+		if DataManager:
+			DataManager.unlock_achievement("PONG GOD")
+		if player_score < current_game_point_limit and ai_score < current_game_point_limit:
+			_reset_ball(false)
+		elif not game_over_flag:
+			_game_over()
+	elif not scored and ball.global_position.x < -ball_hw:
+		scored = true
+		ai_score += 1
+		_update_score_labels()
+		if DataManager:
+			DataManager.increment_conceded_points()
+		if player_score < current_game_point_limit and ai_score < current_game_point_limit:
+			_reset_ball(true)
+		elif not game_over_flag:
+			_game_over()
 
-	# Scoring Checks (same)
-	var ball_half_width: float = 10.0
-	if ball_sprite and ball_sprite.texture: ball_half_width = ball_sprite.get_rect().size.x / 2.0 * ball.scale.x
-	if ball.global_position.x > screen_size.x + ball_half_width:
-		player_score += 1; _update_score_labels()
-		if player_score < point_limit and ai_score < point_limit: _reset_ball(false)
-		elif not game_over_flag: _game_over()
-	elif ball.global_position.x < -ball_half_width:
-		ai_score += 1; _update_score_labels()
-		if player_score < point_limit and ai_score < point_limit: _reset_ball(true)
-		elif not game_over_flag: _game_over()
 
-# --- Particle Helper Function (same) ---
 func _emit_collision_particles(paddle_collider: Node, collision_position: Vector2, _normal: Vector2):
-	# ... (code is unchanged) ...
 	if PADDLE_HIT_PARTICLES:
-		var particles_instance = PADDLE_HIT_PARTICLES.instantiate()
-		if not particles_instance is GPUParticles2D:
-			printerr("Instantiated particle scene is not GPUParticles2D!")
-			if is_instance_valid(particles_instance): particles_instance.queue_free()
+		var p_inst = PADDLE_HIT_PARTICLES.instantiate()
+		if not p_inst is GPUParticles2D:
+			if is_instance_valid(p_inst): p_inst.queue_free()
+			printerr("Particle scene wrong type!")
 			return
-
-		var particles = particles_instance as GPUParticles2D
+		var particles = p_inst as GPUParticles2D
 		add_child(particles)
 		particles.global_position = collision_position
-
-		var paddle_color = Color.WHITE
+		var color = Color.WHITE
 		var sprite = paddle_collider.get_node_or_null("Sprite") as Sprite2D
 		if sprite and sprite.texture:
 			var img = sprite.texture.get_image()
 			if img:
 				if img.is_compressed():
 					if img.can_decompress():
-						var decompress_err = img.decompress()
-						if decompress_err != OK: img = null; printerr("Failed to decompress...")
-					else: img = null; printerr("Cannot decompress...")
-
-				if img:
-					var width = img.get_width(); var height = img.get_height()
-					if width > 0 and height > 0:
-						paddle_color = img.get_pixel(width / 2, height / 2)
-					else: printerr("Paddle texture image has zero dimensions.")
-			else: printerr("Game: Could not get image data from paddle texture.")
-
-		particles.modulate = paddle_color
+						if img.decompress() != OK:
+							img = null
+					else:
+						img = null # Cannot decompress
+				if img: # Check if still valid
+					var w = img.get_width()
+					var h = img.get_height()
+					if w > 0 and h > 0:
+						color = img.get_pixel(w / 2, h / 2)
+		particles.modulate = color
 		particles.emitting = true
 		particles.finished.connect(particles.queue_free)
-	else:
-		printerr("Paddle hit particle scene not loaded correctly.")
 
-# --- Reset Ball (same) ---
+
 func _reset_ball(serve_to_player: bool = true):
-	# ... (code is unchanged) ...
-	if not is_instance_valid(ball): printerr("Reset Ball: Ball invalid!"); return
+	if not is_instance_valid(ball):
+		return
 	ball.global_position = screen_size / 2.0
 	ball_speed = BALL_INITIAL_SPEED
 	ball_velocity = Vector2.ZERO
-	if not is_instance_valid(self): return
+	if not is_instance_valid(self):
+		return
 	await get_tree().create_timer(0.1).timeout
-	if game_over_flag or not is_instance_valid(self): return
-
+	if game_over_flag or not is_instance_valid(self):
+		return
 	randomize()
-	var initial_angle_deg: float = randf_range(15.0, 35.0)
-	var angle_rad: float = deg_to_rad(initial_angle_deg)
-	if randi() % 2 == 0: angle_rad *= -1.0
-	var serve_direction: Vector2 = Vector2.RIGHT if serve_to_player else Vector2.LEFT
-	ball_velocity = serve_direction.rotated(angle_rad) * ball_speed
-	print("Ball reset. Serving to %s. Initial Velocity: %s" % ["Player" if serve_to_player else "AI", ball_velocity])
+	var angle_deg: float = randf_range(15.0, 35.0)
+	var angle_rad: float = deg_to_rad(angle_deg)
+	if randi() % 2 == 0:
+		angle_rad *= -1.0
+	var dir: Vector2 = Vector2.RIGHT if serve_to_player else Vector2.LEFT
+	ball_velocity = dir.rotated(angle_rad) * ball_speed
+	print("Ball reset. Serving %s. Vel: %s" % ["Player" if serve_to_player else "AI", ball_velocity])
 
-# --- Update Score Labels (same) ---
+
 func _update_score_labels():
-	# ... (code is unchanged) ...
-	if is_instance_valid(player_score_label): player_score_label.text = str(player_score)
-	if is_instance_valid(ai_score_label): ai_score_label.text = str(ai_score)
+	if is_instance_valid(player_score_label):
+		player_score_label.text = str(player_score)
+	if is_instance_valid(ai_score_label):
+		ai_score_label.text = str(ai_score)
 
-# --- Game Over (same) ---
+
 func _game_over():
-	# ... (code is unchanged) ...
-	if game_over_flag: return
+	if game_over_flag:
+		return
 	game_over_flag = true
-	print("Game Over sequence started!")
+	print("Game Over!")
 	ball_velocity = Vector2.ZERO
 	if is_instance_valid(ball):
 		ball.global_position = Vector2(-200, -200)
-
-	if not is_instance_valid(self): return
+	if not is_instance_valid(self):
+		return
 	await get_tree().create_timer(3.0).timeout
 	if is_instance_valid(self):
 		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
