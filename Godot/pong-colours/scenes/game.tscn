@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://c068ddsgt30hd" path="res://assets/paddles/colours/AMARANTH PINK.png" id="2_15b3c"]
 [ext_resource type="FontFile" uid="uid://bpa3b045tjca3" path="res://assets/fonts/8-BIT WONDER.TTF" id="2_lnu2h"]
 [ext_resource type="Shader" uid="uid://dfqojpieyk4b8" path="res://shaders/star_parallax.gdshader" id="2_p57ef"]
-[ext_resource type="Texture2D" uid="uid://t5qr2juqsxll" path="res://assets/images/ACHIEVEMENT BANNER.png" id="3_lnu2h"]
+[ext_resource type="Texture2D" uid="uid://t5qr2juqsxll" path="res://assets/images/achievements/ACHIEVEMENT BANNER.png" id="3_lnu2h"]
 [ext_resource type="Texture2D" uid="uid://buwpcosp5rqwu" path="res://assets/paddles/colours/BLACK.png" id="3_veukt"]
 [ext_resource type="Texture2D" uid="uid://dojugimre3pby" path="res://assets/paddles/colours/BLUE.png" id="4_nbjts"]
 [ext_resource type="Texture2D" uid="uid://die3j7setls4f" path="res://assets/paddles/colours/CYAN.png" id="5_i1hsc"]

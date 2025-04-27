@@ -1,10 +1,10 @@
 [gd_scene load_steps=6 format=3 uid="uid://cywfidnw73wr4"]
 
 [ext_resource type="Script" uid="uid://dy0ro5uw2vaue" path="res://scripts/change_name_menu.gd" id="1_6vhbb"]
-[ext_resource type="Texture2D" uid="uid://chl1lq3i1alec" path="res://assets/images/ENTER YOUR NAME.png" id="1_uc7tk"]
+[ext_resource type="Texture2D" uid="uid://chl1lq3i1alec" path="res://assets/images/change name/ENTER YOUR NAME.png" id="1_uc7tk"]
 [ext_resource type="FontFile" uid="uid://bpa3b045tjca3" path="res://assets/fonts/8-BIT WONDER.TTF" id="2_6vhbb"]
-[ext_resource type="Texture2D" uid="uid://by6mxho1rpnkn" path="res://assets/images/SAVE NAME.png" id="3_i3b8n"]
-[ext_resource type="Texture2D" uid="uid://col6esxwts2ne" path="res://assets/images/BACK.png" id="4_d4m8q"]
+[ext_resource type="Texture2D" uid="uid://by6mxho1rpnkn" path="res://assets/images/change name/SAVE NAME.png" id="3_i3b8n"]
+[ext_resource type="Texture2D" uid="uid://col6esxwts2ne" path="res://assets/images/options/BACK.png" id="4_d4m8q"]
 
 [node name="ChangeNameMenu" type="Control"]
 layout_mode = 3

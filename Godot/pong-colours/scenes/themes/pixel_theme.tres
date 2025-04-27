@@ -1,9 +1,9 @@
 [gd_resource type="Theme" load_steps=14 format=3 uid="uid://d0dc5vb7vjgo2"]
 
 [ext_resource type="FontFile" uid="uid://bpa3b045tjca3" path="res://assets/fonts/8-BIT WONDER.TTF" id="1_fr4v8"]
-[ext_resource type="Texture2D" uid="uid://c6jo5smm48h1r" path="res://assets/images/slider ball.png" id="1_n2jbw"]
-[ext_resource type="Texture2D" uid="uid://dssbd680h7hwg" path="res://assets/images/down spinbox.png" id="1_pv254"]
-[ext_resource type="Texture2D" uid="uid://cfggfygtr5ksv" path="res://assets/images/up spinbox.png" id="2_n2jbw"]
+[ext_resource type="Texture2D" uid="uid://c6jo5smm48h1r" path="res://assets/images/options/slider ball.png" id="1_n2jbw"]
+[ext_resource type="Texture2D" uid="uid://dssbd680h7hwg" path="res://assets/images/options/down spinbox.png" id="1_pv254"]
+[ext_resource type="Texture2D" uid="uid://cfggfygtr5ksv" path="res://assets/images/options/up spinbox.png" id="2_n2jbw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3afja"]
 content_margin_left = 8.0
