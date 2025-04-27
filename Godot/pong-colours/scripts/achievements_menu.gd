@@ -30,14 +30,23 @@ func _ready():
 	}
 	print("AchievementsMenu: achievement_textures populated in _ready(). Size:", achievement_textures.size())
 
-	# --- FIX: Call update display *after* dictionary is populated ---
+	# --- NEW: Set Tooltips ---
+	# Assign the descriptive text to each achievement icon's tooltip property.
+	# Godot automatically shows this text on hover.
+	ach_pong_god_texture.tooltip_text = "You are the God of Pong\nScore one point"
+	ach_ponging_out_texture.tooltip_text = "Oopsies\nLet the AI score 10 points total"
+	ach_two_of_a_kind_texture.tooltip_text = "Twinsies\nGet the same paddle as the AI"
+	ach_gaming_trifecta_texture.tooltip_text = "1337\nUse the classic R, G, B paddles at least once"
+	ach_pong_slay_texture.tooltip_text = "Werk\nUse every single pride flag paddle"
+	ach_pong_chameleon_texture.tooltip_text = "Colour me impressed\nPlay as all the solid colour paddles"
+	ach_gay_chameleon_texture.tooltip_text = "Taste the rainbow\nUse all the pride AND colour paddles"
+	ach_pong_colours_texture.tooltip_text = "The gayest one to rule them all\nUnlock everything else to snatch this crown"
+	# --- End of Tooltip Setting ---
+
+	# --- Call update display *after* dictionary is populated ---
 	update_achievement_display()
 	print("AchievementsMenu: _ready() finished.")
 
-
-# _enter_tree() is no longer needed for this
-# func _enter_tree():
-# 	print("AchievementsMenu: _enter_tree() called.")
 
 
 func update_achievement_display():
