@@ -42,35 +42,30 @@ texture = ExtResource("1_c2xea")
 stretch_mode = 3
 
 [node name="WholeContainer" type="HBoxContainer" parent="AchievementsLayout"]
-custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 theme_override_constants/separation = 300
 alignment = 1
 
 [node name="LeftColumnContianer" type="VBoxContainer" parent="AchievementsLayout/WholeContainer"]
 layout_mode = 2
-theme_override_constants/separation = 100
+theme_override_constants/separation = 70
 
 [node name="Ach_PongGod_Texture" type="TextureRect" parent="AchievementsLayout/WholeContainer/LeftColumnContianer"]
-modulate = Color(0.281187, 0.281187, 0.281187, 0.698039)
 layout_mode = 2
 texture = ExtResource("2_4qq1x")
 stretch_mode = 3
 
 [node name="Ach_PongingOut_Texture" type="TextureRect" parent="AchievementsLayout/WholeContainer/LeftColumnContianer"]
-modulate = Color(0.281187, 0.281187, 0.281187, 0.698039)
 layout_mode = 2
 texture = ExtResource("4_hkapp")
 stretch_mode = 3
 
 [node name="Ach_Pong_TwoOfAKind" type="TextureRect" parent="AchievementsLayout/WholeContainer/LeftColumnContianer"]
-modulate = Color(0.281187, 0.281187, 0.281187, 0.698039)
 layout_mode = 2
 texture = ExtResource("6_u113w")
 stretch_mode = 3
 
 [node name="Ach_GamingTrifecta_Texture" type="TextureRect" parent="AchievementsLayout/WholeContainer/LeftColumnContianer"]
-modulate = Color(0.281187, 0.281187, 0.281187, 0.698039)
 layout_mode = 2
 texture = ExtResource("8_rmhic")
 stretch_mode = 3
@@ -78,29 +73,25 @@ stretch_mode = 3
 [node name="RightColumnContainer" type="VBoxContainer" parent="AchievementsLayout/WholeContainer"]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
-theme_override_constants/separation = 100
+theme_override_constants/separation = 70
 alignment = 1
 
 [node name="Ach_PongSlay_Texture" type="TextureRect" parent="AchievementsLayout/WholeContainer/RightColumnContainer"]
-modulate = Color(0.281187, 0.281187, 0.281187, 0.698039)
 layout_mode = 2
 texture = ExtResource("3_0pdwi")
 stretch_mode = 3
 
 [node name="Ach_PongChameleon_Texture" type="TextureRect" parent="AchievementsLayout/WholeContainer/RightColumnContainer"]
-modulate = Color(0.281187, 0.281187, 0.281187, 0.698039)
 layout_mode = 2
 texture = ExtResource("5_txxe2")
 stretch_mode = 3
 
 [node name="Ach_GayChameleon_Texture" type="TextureRect" parent="AchievementsLayout/WholeContainer/RightColumnContainer"]
-modulate = Color(0.281187, 0.281187, 0.281187, 0.698039)
 layout_mode = 2
 texture = ExtResource("7_jsvuo")
 stretch_mode = 3
 
 [node name="Ach_PongColours_Texture" type="TextureRect" parent="AchievementsLayout/WholeContainer/RightColumnContainer"]
-modulate = Color(0.281187, 0.281187, 0.281187, 0.698039)
 layout_mode = 2
 texture = ExtResource("9_eaovx")
 stretch_mode = 3
