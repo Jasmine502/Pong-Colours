@@ -26,6 +26,7 @@ const PADDLE_HIT_PARTICLES = preload("res://scenes/effects/paddle_hit_particles.
 
 @export_category("Ball Textures")
 @export var colour_balls: Array[Texture2D] = []
+@export var meme_balls: Array[Texture2D] = []
 @export var pride_balls: Array[Texture2D] = []
 # --- End Exported Textures ---
 
@@ -140,6 +141,7 @@ func _ready():
 
 	var all_balls: Array[Texture2D] = []
 	all_balls.append_array(colour_balls)
+	all_balls.append_array(meme_balls)
 	all_balls.append_array(pride_balls)
 
 	var player_texture: Texture2D = null
