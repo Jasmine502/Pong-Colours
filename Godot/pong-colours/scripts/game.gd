@@ -229,13 +229,6 @@ func _physics_process(delta):
 
 	_handle_ball_movement(delta)
 
-	# Update background shader based on ball position
-	if is_instance_valid(background_material) and screen_size != Vector2.ZERO:
-		if is_instance_valid(ball):
-			var normalized_pos = ball.global_position / screen_size
-			background_material.set_shader_parameter("ball_position_normalized", normalized_pos)
-
-
 func _on_data_manager_achievement_unlocked(achievement_name: String):
 	print("Game received achievement unlock signal:", achievement_name)
 	if not is_instance_valid(achievement_banner) or not is_instance_valid(achievement_animator):
