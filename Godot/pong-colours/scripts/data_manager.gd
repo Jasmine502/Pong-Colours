@@ -22,10 +22,18 @@ var achievement_stats: Dictionary = {
 }
 
 
-# --- Lists for Achievement Requirements ---
-var required_trifecta_paddles: Array[String] = ["red.png", "blue.png", "green.png"]
-var required_pride_paddles: Array[String] = []
-var required_colour_paddles: Array[String] = []
+# --- Exported Texture Arrays for Achievement Definitions ---
+# Link the textures for these specific achievements in the Godot Editor Inspector for the DataManager node!
+@export_category("Achievement Paddle Requirements")
+@export var required_pride_paddle_textures: Array[Texture2D] = []
+@export var required_colour_paddle_textures: Array[Texture2D] = []
+# --- End Exported Textures ---
+
+
+# --- Lists for Achievement Requirements (Populated from exported textures) ---
+var required_trifecta_paddles: Array[String] = ["red.png", "blue.png", "green.png"] # Keep this simple list hardcoded
+var required_pride_paddles: Array[String] = [] # Populated in _ready
+var required_colour_paddles: Array[String] = [] # Populated in _ready
 
 signal achievement_unlocked(achievement_name)
 
@@ -38,11 +46,12 @@ func _ready():
 		display_settings["resolution_height"] = initial_res.y
 		print("DataManager: Default resolution set from DisplayServer:", initial_res)
 	else: # Use fallback if display server is slow
+		# Ensure these defaults match your project settings
 		display_settings["resolution_width"] = 1152
 		display_settings["resolution_height"] = 648
 		print("DataManager: Default resolution set from fallback.")
 
-	_populate_required_paddle_lists()
+	_populate_required_paddle_lists_from_exports() # Use new function
 	load_data() # Load saved data, potentially overwriting defaults
 	print("DataManager: Initialization complete.")
 
@@ -52,26 +61,37 @@ func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		print("DataManager: WM_CLOSE_REQUEST notification received. Triggering save.")
 		save_data()
+	# Optional: Save on pause?
+	# if what == NOTIFICATION_APPLICATION_PAUSED:
+	#	  print("DataManager: Application paused. Saving data.")
+	#	  save_data()
 
-func _populate_required_paddle_lists():
-	required_pride_paddles = _scan_folder_for_png_basenames("res://assets/paddles/pride/")
-	required_colour_paddles = _scan_folder_for_png_basenames("res://assets/paddles/colours/")
-	# print("DataManager: Required Pride Paddles:", required_pride_paddles) # Optional debug
-	# print("DataManager: Required Colour Paddles:", required_colour_paddles) # Optional debug
 
-func _scan_folder_for_png_basenames(folder_path: String) -> Array[String]:
-	var basenames: Array[String] = []
-	var dir = DirAccess.open(folder_path)
-	if dir:
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if not dir.current_is_dir() and (file_name.ends_with(".png") or file_name.ends_with(".PNG")):
-				basenames.append(file_name.to_lower())
-			file_name = dir.get_next()
-	else:
-		printerr("DataManager: Could not scan folder:", folder_path)
-	return basenames
+# --- NEW: Populate required paddle filename lists from exported Textures ---
+func _populate_required_paddle_lists_from_exports():
+	required_pride_paddles.clear()
+	for texture in required_pride_paddle_textures:
+		if texture and not texture.resource_path.is_empty():
+			var basename = texture.resource_path.get_file().to_lower()
+			if not required_pride_paddles.has(basename):
+				required_pride_paddles.append(basename)
+		else:
+			printerr("DataManager Warning: Found null or pathless texture in required_pride_paddle_textures export.")
+
+	required_colour_paddles.clear()
+	for texture in required_colour_paddle_textures:
+		if texture and not texture.resource_path.is_empty():
+			var basename = texture.resource_path.get_file().to_lower()
+			if not required_colour_paddles.has(basename):
+				required_colour_paddles.append(basename)
+		else:
+			printerr("DataManager Warning: Found null or pathless texture in required_colour_paddle_textures export.")
+
+	print("DataManager: Required Pride Paddles (from exports):", required_pride_paddles)
+	print("DataManager: Required Colour Paddles (from exports):", required_colour_paddles)
+
+
+# REMOVED: _scan_folder_for_png_basenames is no longer needed
 
 #-------------------------------------------------
 # Data Persistence
@@ -94,13 +114,15 @@ func save_data():
 	config.set_value("display", "resolution_height", display_settings.get("resolution_height", 648))
 	config.set_value("display", "fullscreen", display_settings.get("fullscreen", false))
 
+	# Save achievement status
 	for ach_name in achievements_unlocked:
 		config.set_value("achievements", ach_name, achievements_unlocked[ach_name])
 
+	# Save achievement stats
 	config.set_value("stats", "total_points_conceded", achievement_stats.get("total_points_conceded", 0))
 	# Convert paddle dict keys back to array for saving
-	var paddles_dict = achievement_stats.get("player_paddles_used", {})
-	config.set_value("stats", "player_paddles_used", paddles_dict.keys())
+	var paddles_dict: Dictionary = achievement_stats.get("player_paddles_used", {})
+	config.set_value("stats", "player_paddles_used", paddles_dict.keys()) # Save only the keys (filenames)
 
 	var err = config.save(SAVE_FILE)
 	if err != OK:
@@ -126,34 +148,43 @@ func load_data():
 		display_settings["fullscreen"] = config.get_value("display", "fullscreen", display_settings["fullscreen"])
 
 		# Load achievements carefully
-		var loaded_achievements = config.get_value("achievements", "", {})
+		var loaded_achievements = config.get_value("achievements", "", {}) # Default to empty dict
 		if typeof(loaded_achievements) == TYPE_DICTIONARY:
 			for ach_name in achievements_unlocked: # Iterate defined achievements
 				if loaded_achievements.has(ach_name):
-					# Only overwrite if the key exists in the loaded data
-					achievements_unlocked[ach_name] = loaded_achievements[ach_name]
-		else: printerr("DataManager WARNING: Achievements data type invalid.")
+					# Only overwrite if the key exists in the loaded data and type matches
+					if typeof(loaded_achievements[ach_name]) == TYPE_BOOL:
+						achievements_unlocked[ach_name] = loaded_achievements[ach_name]
+					else:
+						print("DataManager WARNING: Invalid type for achievement '", ach_name, "' in save file. Using default.")
+				# else: Keep default value if key is missing in save file
+		else: printerr("DataManager WARNING: Achievements data type in save file is invalid.")
 
+		# Load achievement stats
 		achievement_stats["total_points_conceded"] = config.get_value("stats", "total_points_conceded", achievement_stats["total_points_conceded"])
 
 		# Load used paddles
-		var used_paddles_array = config.get_value("stats", "player_paddles_used", [])
+		var used_paddles_array = config.get_value("stats", "player_paddles_used", []) # Default to empty array
 		achievement_stats["player_paddles_used"] = {} # Clear before loading
 		if typeof(used_paddles_array) == TYPE_ARRAY:
 			for paddle_basename in used_paddles_array:
 				if typeof(paddle_basename) == TYPE_STRING:
-					achievement_stats["player_paddles_used"][paddle_basename] = true
+					# Basic validation: does it look like a png?
+					if paddle_basename.ends_with(".png"):
+						achievement_stats["player_paddles_used"][paddle_basename] = true
+					else:
+						printerr("DataManager WARNING: Suspicious entry '", paddle_basename, "' in saved paddles array.")
 				else: printerr("DataManager WARNING: Non-string in saved paddles array.")
-		else: printerr("DataManager WARNING: Saved paddles data not an array.")
+		else: printerr("DataManager WARNING: Saved paddles data ('player_paddles_used') is not an array.")
 
 		print("DataManager: Data loaded successfully.")
-		print("  Loaded Player:", player_data["name"], "Point Limit:", settings["point_limit"])
+		print("  Loaded Player:", get_player_name(), "Point Limit:", get_point_limit())
 		# Don't push to AudioManager here, AudioManager will pull later via call_deferred
 
 	elif err == ERR_FILE_NOT_FOUND:
 		print("DataManager: Save file not found (", SAVE_FILE, "). Creating new default data.")
 		# Internal values are already at defaults from _ready() or class definition
-		# reset_data_values() # Not strictly needed here if defaults are set above
+		reset_data_values() # Ensure defaults are set
 		save_data() # Save the new default file immediately
 
 	else:
@@ -172,17 +203,20 @@ func reset_data():
 	reset_data_values()
 	save_data() # Save the reset state
 	# Tell AudioManager to re-apply defaults now that DataManager has them
-	if is_instance_valid(AudioManager) and AudioManager.is_node_ready():
+	if AudioManager and is_instance_valid(AudioManager) and AudioManager.is_node_ready():
 		# AudioManager will fetch the new defaults from DataManager
-		AudioManager._apply_initial_settings()
+		AudioManager._apply_initial_settings() # Reuse the function that loads from DM
+	else:
+		printerr("DataManager: Cannot notify AudioManager after reset - not found or not ready.")
 	print("DataManager: Data reset complete and saved.")
 
 
+# Internal helper to reset dictionary values
 func reset_data_values():
 	print("DataManager: Resetting internal data variables to defaults.")
 	settings = {"point_limit": 5}
 	player_data = {"name": "Player"}
-	# Get current display size for defaults
+	# Get current display size for defaults, with fallback
 	var current_res = DisplayServer.window_get_size()
 	if current_res == Vector2i.ZERO: current_res = Vector2i(1152, 648) # Fallback
 	audio_settings = {"music_volume_db": 0.0, "sfx_volume_db": 0.0}
@@ -191,11 +225,13 @@ func reset_data_values():
 		"resolution_height": current_res.y,
 		"fullscreen": false
 	}
+	# Reset all achievements to false
 	for ach_name in achievements_unlocked:
 		achievements_unlocked[ach_name] = false
+	# Reset stats
 	achievement_stats = {
 		"total_points_conceded": 0,
-		"player_paddles_used": {}
+		"player_paddles_used": {} # Reset used paddles list
 	}
 
 
@@ -206,40 +242,42 @@ func reset_data_values():
 # Generic getter used by AudioManager or UI to pull current state
 # Ensure this is called *after* DataManager has loaded
 func get_value_or_default(section_key: String, value_key: String, default_value):
+	var source_dict: Dictionary
 	match section_key:
-		"settings": return settings.get(value_key, default_value)
-		"player": return player_data.get(value_key, default_value)
-		"audio": return audio_settings.get(value_key, default_value)
-		"display": return display_settings.get(value_key, default_value)
-		"achievements": return achievements_unlocked.get(value_key, default_value)
-		"stats":
-			var stats_dict = achievement_stats.get(value_key)
-			if stats_dict != null: return stats_dict
-			else: return default_value # Handle cases like getting 'player_paddles_used'
+		"settings": source_dict = settings
+		"player": source_dict = player_data
+		"audio": source_dict = audio_settings
+		"display": source_dict = display_settings
+		"achievements": source_dict = achievements_unlocked
+		"stats": source_dict = achievement_stats # Allow direct access to stats dict
 		_:
 			printerr("DataManager: Unknown section key '", section_key, "' in get_value_or_default.")
 			return default_value
 
+	# Use .get() for safe access within the chosen dictionary
+	return source_dict.get(value_key, default_value)
+
+
 # Generic setter used by AudioManager or UI to update DataManager's state AND save
 func update_and_save_setting(section_key: String, value_key: String, new_value, save_immediately: bool = true):
+	var target_dict: Dictionary
 	var changed = false
-	# Use .get() to safely handle potentially missing keys initially
+
+	# Select the correct dictionary to modify
 	match section_key:
-		"settings":
-			if settings.get(value_key, null) != new_value:
-				settings[value_key] = new_value; changed = true
-		"player":
-			if player_data.get(value_key, null) != new_value:
-				player_data[value_key] = new_value; changed = true
-		"audio":
-			if audio_settings.get(value_key, null) != new_value:
-				audio_settings[value_key] = new_value; changed = true
-		"display":
-			if display_settings.get(value_key, null) != new_value:
-				display_settings[value_key] = new_value; changed = true
+		"settings": target_dict = settings
+		"player": target_dict = player_data
+		"audio": target_dict = audio_settings
+		"display": target_dict = display_settings
+		# Achievements and Stats are generally not set this way, but handled by specific functions
 		_:
-			printerr("DataManager: Unknown section key '", section_key, "' in update_and_save_setting.")
+			printerr("DataManager: Unknown or unsupported section key '", section_key, "' in update_and_save_setting.")
 			return
+
+	# Check if the value actually changed before modifying and potentially saving
+	if target_dict.get(value_key, null) != new_value:
+		target_dict[value_key] = new_value
+		changed = true
 
 	if changed and save_immediately:
 		print("DataManager: Value changed for ", section_key, ".", value_key, " - Calling save_data()")
@@ -255,112 +293,168 @@ func set_point_limit(limit: int):
 	if limit >= 1:
 		# Update internal dictionary and trigger save
 		update_and_save_setting("settings", "point_limit", limit)
+	else:
+		printerr("DataManager: Invalid point limit set:", limit)
 
 func get_point_limit() -> int:
 	# Read from internal dictionary
-	return settings.get("point_limit", 5)
+	return settings.get("point_limit", 5) # Use .get() for safety
 
 
 func set_player_name(new_name: String):
+	var cleaned_name = new_name.strip_edges()
+	if cleaned_name.is_empty():
+		printerr("DataManager: Attempted to set empty player name.")
+		return
 	# Update internal dictionary but DO NOT save immediately
 	# ChangeNameMenu script calls save_data after this
-	update_and_save_setting("player", "name", new_name, false)
+	update_and_save_setting("player", "name", cleaned_name, false)
 
 func get_player_name() -> String:
 	# Read from internal dictionary
-	return player_data.get("name", "Player")
+	return player_data.get("name", "Player") # Use .get() for safety
 
 #-------------------------------------------------
 # Achievement Logic
 #-------------------------------------------------
 func unlock_achievement(ach_name: String):
-	if achievements_unlocked.has(ach_name) and not achievements_unlocked[ach_name]:
-		achievements_unlocked[ach_name] = true
-		print("***** Achievement Unlocked:", ach_name, "***** - Calling save_data()")
-		emit_signal("achievement_unlocked", ach_name)
-		check_for_pong_colours()
-		save_data() # Save when an achievement is unlocked
-	elif not achievements_unlocked.has(ach_name):
-		printerr("Attempted unlock unknown achievement:", ach_name)
+	if achievements_unlocked.has(ach_name):
+		if not achievements_unlocked[ach_name]: # Only unlock if not already unlocked
+			achievements_unlocked[ach_name] = true
+			print("***** Achievement Unlocked:", ach_name, "***** - Calling save_data()")
+			emit_signal("achievement_unlocked", ach_name)
+			check_for_pong_colours() # Check if this unlocks the final achievement
+			save_data() # Save when an achievement is unlocked
+		# else: Already unlocked, do nothing silently
+	else:
+		printerr("Attempted to unlock unknown achievement:", ach_name)
+
 
 func is_achievement_unlocked(ach_name: String) -> bool:
-	return achievements_unlocked.get(ach_name, false)
+	return achievements_unlocked.get(ach_name, false) # Use .get() for safety
+
 
 func increment_conceded_points():
-	var current_conceded = achievement_stats.get("total_points_conceded", 0)
+	var current_conceded: int = achievement_stats.get("total_points_conceded", 0)
 	current_conceded += 1
 	achievement_stats["total_points_conceded"] = current_conceded
-	# Save happens when achievement unlocks, or on quit
+	# Save happens when achievement unlocks, or on quit/pause
+	# Check for achievement unlock condition
 	if not is_achievement_unlocked("PONGING OUT") and current_conceded >= 10:
 		unlock_achievement("PONGING OUT")
 
-func add_player_paddle_used(texture_path: String):
-	if texture_path.is_empty(): return
-	var basename = texture_path.get_file().to_lower()
+
+func add_player_paddle_used(resource_path: String):
+	if resource_path.is_empty() or not resource_path.begins_with("res://"):
+		printerr("DataManager: Invalid resource path provided to add_player_paddle_used:", resource_path)
+		return
+
+	var basename = resource_path.get_file().to_lower() # Get "paddle.png" in lower case
+
 	# Ensure the dictionary exists before trying to access it
-	if not achievement_stats.has("player_paddles_used"):
+	if not achievement_stats.has("player_paddles_used") or typeof(achievement_stats["player_paddles_used"]) != TYPE_DICTIONARY:
 		achievement_stats["player_paddles_used"] = {}
 
-	var paddles_dict = achievement_stats["player_paddles_used"]
+	var paddles_dict: Dictionary = achievement_stats["player_paddles_used"]
+
+	# Only proceed if this specific paddle hasn't been recorded yet
 	if not paddles_dict.has(basename):
 		paddles_dict[basename] = true
-		# achievement_stats["player_paddles_used"] = paddles_dict # No need to reassign dict
+		# No need to reassign dict: achievement_stats["player_paddles_used"] = paddles_dict
 		print("DataManager: Added used paddle:", basename, " - Calling save_data()")
+
+		# Check relevant achievements now that a new paddle is used
 		check_trifecta_achievement()
 		check_pong_slay_achievement()
 		check_pong_chameleon_achievement()
 		check_gay_chameleon_achievement()
-		save_data() # Save when a new paddle is tracked
+		# Don't check Pong Colours here, only when another achievement unlocks
 
-# --- Achievement check functions need to access the nested dictionary ---
+		save_data() # Save data when a new paddle is tracked
+
+
+# --- Achievement check functions ---
+# These now rely on the 'required_x_paddles' Array[String] populated in _ready
+# and compare against the 'player_paddles_used' Dictionary in achievement_stats
+
 func check_trifecta_achievement():
 	if is_achievement_unlocked("GAMING TRIFECTA"): return
-	var used_paddles = achievement_stats.get("player_paddles_used", {})
+	var used_paddles: Dictionary = achievement_stats.get("player_paddles_used", {})
 	var found_all = true
 	for required_basename in required_trifecta_paddles:
 		if not used_paddles.has(required_basename):
-			found_all = false; break
-	if found_all: unlock_achievement("GAMING TRIFECTA")
+			found_all = false
+			break # No need to check further
+	if found_all:
+		unlock_achievement("GAMING TRIFECTA")
 
-func check_pong_slay_achievement():
+
+func check_pong_slay_achievement(): # Uses pride paddles
 	if is_achievement_unlocked("PONG SLAY"): return
-	if required_pride_paddles.is_empty(): return
-	var used_paddles = achievement_stats.get("player_paddles_used", {})
+	if required_pride_paddles.is_empty():
+		# print("DataManager: Cannot check Pong Slay, no required pride paddles defined/exported.")
+		return # Cannot achieve if requirements list is empty
+	var used_paddles: Dictionary = achievement_stats.get("player_paddles_used", {})
 	var found_all = true
 	for required_basename in required_pride_paddles:
 		if not used_paddles.has(required_basename):
-			found_all = false; break
-	if found_all: unlock_achievement("PONG SLAY")
+			found_all = false
+			break
+	if found_all:
+		unlock_achievement("PONG SLAY")
 
-func check_pong_chameleon_achievement():
+
+func check_pong_chameleon_achievement(): # Uses colour paddles
 	if is_achievement_unlocked("PONG CHAMELEON"): return
-	if required_colour_paddles.is_empty(): return
-	var used_paddles = achievement_stats.get("player_paddles_used", {})
+	if required_colour_paddles.is_empty():
+		# print("DataManager: Cannot check Pong Chameleon, no required colour paddles defined/exported.")
+		return
+	var used_paddles: Dictionary = achievement_stats.get("player_paddles_used", {})
 	var found_all = true
 	for required_basename in required_colour_paddles:
 		if not used_paddles.has(required_basename):
-			found_all = false; break
-	if found_all: unlock_achievement("PONG CHAMELEON")
+			found_all = false
+			break
+	if found_all:
+		unlock_achievement("PONG CHAMELEON")
 
-func check_gay_chameleon_achievement():
+
+func check_gay_chameleon_achievement(): # Uses pride AND colour paddles
 	if is_achievement_unlocked("GAY CHAMELEON"): return
-	if required_pride_paddles.is_empty() or required_colour_paddles.is_empty(): return
-	var used_paddles = achievement_stats.get("player_paddles_used", {})
+	if required_pride_paddles.is_empty() or required_colour_paddles.is_empty():
+		# print("DataManager: Cannot check Gay Chameleon, missing required pride or colour paddles.")
+		return
+	var used_paddles: Dictionary = achievement_stats.get("player_paddles_used", {})
+
+	# Check all pride paddles first
 	var found_all_pride = true
 	for rb in required_pride_paddles:
-		if not used_paddles.has(rb): found_all_pride = false; break
-	if not found_all_pride: return
+		if not used_paddles.has(rb):
+			found_all_pride = false
+			break
+	if not found_all_pride: return # Exit early if pride set incomplete
+
+	# Check all colour paddles
 	var found_all_colour = true
 	for rb in required_colour_paddles:
-		if not used_paddles.has(rb): found_all_colour = false; break
-	if found_all_colour:
-		unlock_achievement("GAY CHAMELEON")
+		if not used_paddles.has(rb):
+			found_all_colour = false
+			break
+	if not found_all_colour: return # Exit early if colour set incomplete
 
+	# If both checks passed
+	unlock_achievement("GAY CHAMELEON")
+
+
+# Check if unlocking another achievement completes the set for "Pong Colours"
 func check_for_pong_colours():
-	if is_achievement_unlocked("PONG COLOURS"): return
+	if is_achievement_unlocked("PONG COLOURS"): return # Already unlocked
+
 	var all_others_unlocked = true
 	for ach_name in achievements_unlocked:
 		if ach_name != "PONG COLOURS" and not achievements_unlocked[ach_name]:
 			all_others_unlocked = false
-			break
-	if all_others_unlocked: unlock_achievement("PONG COLOURS")
+			break # Found one that's not unlocked
+
+	if all_others_unlocked:
+		unlock_achievement("PONG COLOURS")
