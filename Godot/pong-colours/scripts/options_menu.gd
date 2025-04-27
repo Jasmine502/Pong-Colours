@@ -2,11 +2,11 @@
 extends Control
 
 # Adjust paths as needed
-@onready var music_volume_slider = $OptionsLayout/HBoxContainer2/MusicVolumeSlider
-@onready var sfx_volume_slider = $OptionsLayout/HBoxContainer3/SfxVolumeSlider
-@onready var resolution_option_button = $OptionsLayout/HBoxContainer4/ResolutionOptionButton
-@onready var fullscreen_checkbox = $OptionsLayout/HBoxContainer5/FullscreenCheckBox
-@onready var point_limit_spinbox = $OptionsLayout/HBoxContainer/PointLimitSpinBox # Adjust path to your HBox
+@onready var music_volume_slider = $OptionsLayout/SettingsColumns/RightColumn/MusicVolumeSlider
+@onready var sfx_volume_slider = $OptionsLayout/SettingsColumns/RightColumn/SfxVolumeSlider
+@onready var resolution_option_button = $OptionsLayout/SettingsColumns/RightColumn/ResolutionOptionButton
+@onready var fullscreen_checkbox = $OptionsLayout/SettingsColumns/RightColumn/FullscreenCheckBox
+@onready var point_limit_spinbox = $OptionsLayout/SettingsColumns/RightColumn/PointLimitSpinBox # Adjust path to your HBox
 
 var available_resolutions: Array[Vector2i] = []
 

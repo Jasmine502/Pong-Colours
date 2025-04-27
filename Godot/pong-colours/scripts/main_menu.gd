@@ -10,7 +10,7 @@ func _on_play_button_pressed():
 	# For now, directly start the game. Later we might add a quick play menu.
 	# We'll assume the point limit is already set in DataManager via Options.
 	print("Play button pressed - changing to game scene")
-	get_tree().change_scene_to_file("res://scenes/game.tscn") #[2, 10, 13, 25, 34]
+	get_tree().change_scene_to_file("res://scenes/game.tscn")
 
 func _on_change_name_button_pressed():
 	print("Change Name button pressed - changing to change name scene")
@@ -25,5 +25,12 @@ func _on_achievements_button_pressed():
 	get_tree().change_scene_to_file("res://scenes/achievements_menu.tscn")
 
 func _on_quit_button_pressed():
-	print("Quit button pressed - exiting game")
+	print("Quit button pressed - attempting to save data before exiting.")
+	# --- ADD THIS LINE ---
+	if DataManager:
+		DataManager.save_data() # Explicitly save data NOW
+	else:
+		printerr("MainMenu: DataManager not found on quit, cannot save.")
+	# --- END ADDITION ---
+	print("MainMenu: Exiting game.")
 	get_tree().quit() # Quits the application

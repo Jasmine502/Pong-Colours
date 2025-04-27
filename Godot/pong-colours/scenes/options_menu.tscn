@@ -1,6 +1,7 @@
-[gd_scene load_steps=11 format=3 uid="uid://ifccetlmivkq"]
+[gd_scene load_steps=12 format=3 uid="uid://ifccetlmivkq"]
 
 [ext_resource type="Script" uid="uid://d4eo2oracgn6f" path="res://scripts/options_menu.gd" id="1_dhn0l"]
+[ext_resource type="Theme" uid="uid://d0dc5vb7vjgo2" path="res://scenes/themes/pixel_theme.tres" id="1_i80p0"]
 [ext_resource type="Texture2D" uid="uid://cuplud6lmltj6" path="res://assets/images/OPTIONS title.png" id="2_dhn0l"]
 [ext_resource type="Texture2D" uid="uid://2krkpy0rld6k" path="res://assets/images/POINT LIMIT.png" id="3_7txom"]
 [ext_resource type="Texture2D" uid="uid://dsavulpls7iiu" path="res://assets/images/LIGHT MODE.png" id="4_binsn"]
@@ -17,10 +18,9 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 768.0
-offset_bottom = 432.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("1_i80p0")
 script = ExtResource("1_dhn0l")
 
 [node name="ColorRect" type="ColorRect" parent="."]
@@ -28,8 +28,6 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -768.0
-offset_bottom = -432.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
@@ -38,81 +36,80 @@ color = Color(0, 0, 0, 1)
 layout_mode = 0
 offset_right = 1920.0
 offset_bottom = 1080.0
+theme_override_constants/separation = 20
 alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="OptionsLayout"]
+[node name="OptionsRect" type="TextureRect" parent="OptionsLayout"]
 layout_mode = 2
 texture = ExtResource("2_dhn0l")
 stretch_mode = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="OptionsLayout"]
+[node name="SettingsColumns" type="HBoxContainer" parent="OptionsLayout"]
 layout_mode = 2
+theme_override_constants/separation = 300
 alignment = 1
 
-[node name="TextureRect" type="TextureRect" parent="OptionsLayout/HBoxContainer"]
+[node name="LeftColumn" type="VBoxContainer" parent="OptionsLayout/SettingsColumns"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="PointLimitRect" type="TextureRect" parent="OptionsLayout/SettingsColumns/LeftColumn"]
 layout_mode = 2
 texture = ExtResource("3_7txom")
 stretch_mode = 3
 
-[node name="PointLimitSpinBox" type="SpinBox" parent="OptionsLayout/HBoxContainer"]
+[node name="MusicRect" type="TextureRect" parent="OptionsLayout/SettingsColumns/LeftColumn"]
+layout_mode = 2
+texture = ExtResource("4_k61yy")
+stretch_mode = 3
+
+[node name="SFXRect" type="TextureRect" parent="OptionsLayout/SettingsColumns/LeftColumn"]
+layout_mode = 2
+texture = ExtResource("5_i80p0")
+stretch_mode = 3
+
+[node name="ResolutionRect" type="TextureRect" parent="OptionsLayout/SettingsColumns/LeftColumn"]
+layout_mode = 2
+texture = ExtResource("6_smlwr")
+stretch_mode = 3
+
+[node name="FullscreenRect" type="TextureRect" parent="OptionsLayout/SettingsColumns/LeftColumn"]
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("7_cvq0m")
+
+[node name="RightColumn" type="VBoxContainer" parent="OptionsLayout/SettingsColumns"]
+layout_mode = 2
+theme_override_constants/separation = 70
+alignment = 1
+
+[node name="PointLimitSpinBox" type="SpinBox" parent="OptionsLayout/SettingsColumns/RightColumn"]
 layout_mode = 2
 max_value = 99.0
 value = 10.0
 alignment = 1
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="OptionsLayout"]
-layout_mode = 2
-alignment = 1
-
-[node name="TextureRect" type="TextureRect" parent="OptionsLayout/HBoxContainer2"]
-layout_mode = 2
-texture = ExtResource("4_k61yy")
-stretch_mode = 3
-
-[node name="MusicVolumeSlider" type="HSlider" parent="OptionsLayout/HBoxContainer2"]
+[node name="MusicVolumeSlider" type="HSlider" parent="OptionsLayout/SettingsColumns/RightColumn"]
 layout_mode = 2
 size_flags_vertical = 1
 max_value = 1.0
 step = 0.01
 
-[node name="HBoxContainer3" type="HBoxContainer" parent="OptionsLayout"]
+[node name="SfxVolumeSlider" type="HSlider" parent="OptionsLayout/SettingsColumns/RightColumn"]
 layout_mode = 2
-alignment = 1
-
-[node name="TextureRect" type="TextureRect" parent="OptionsLayout/HBoxContainer3"]
-layout_mode = 2
-texture = ExtResource("5_i80p0")
-stretch_mode = 3
-
-[node name="SfxVolumeSlider" type="HSlider" parent="OptionsLayout/HBoxContainer3"]
-layout_mode = 2
+size_flags_horizontal = 3
 max_value = 1.0
 step = 0.01
 
-[node name="HBoxContainer4" type="HBoxContainer" parent="OptionsLayout"]
-layout_mode = 2
-alignment = 1
-
-[node name="TextureRect" type="TextureRect" parent="OptionsLayout/HBoxContainer4"]
-layout_mode = 2
-texture = ExtResource("6_smlwr")
-stretch_mode = 3
-
-[node name="ResolutionOptionButton" type="OptionButton" parent="OptionsLayout/HBoxContainer4"]
+[node name="ResolutionOptionButton" type="OptionButton" parent="OptionsLayout/SettingsColumns/RightColumn"]
 layout_mode = 2
 
-[node name="HBoxContainer5" type="HBoxContainer" parent="OptionsLayout"]
+[node name="FullscreenCheckBox" type="CheckBox" parent="OptionsLayout/SettingsColumns/RightColumn"]
 layout_mode = 2
-alignment = 1
-
-[node name="TextureRect2" type="TextureRect" parent="OptionsLayout/HBoxContainer5"]
-layout_mode = 2
-texture = ExtResource("7_cvq0m")
-
-[node name="FullscreenCheckBox" type="CheckBox" parent="OptionsLayout/HBoxContainer5"]
-layout_mode = 2
+theme_override_constants/h_separation = 1
 
 [node name="LightModeCheckBox" type="CheckBox" parent="OptionsLayout"]
+visible = false
 layout_mode = 2
 icon = ExtResource("4_binsn")
 flat = true
@@ -128,7 +125,7 @@ layout_mode = 2
 texture_normal = ExtResource("6_k61yy")
 stretch_mode = 3
 
-[connection signal="value_changed" from="OptionsLayout/HBoxContainer/PointLimitSpinBox" to="." method="_on_point_limit_spin_box_value_changed"]
+[connection signal="value_changed" from="OptionsLayout/SettingsColumns/RightColumn/PointLimitSpinBox" to="." method="_on_point_limit_spin_box_value_changed"]
 [connection signal="toggled" from="OptionsLayout/LightModeCheckBox" to="." method="_on_light_mode_check_box_toggled"]
 [connection signal="pressed" from="OptionsLayout/ResetDataButton" to="." method="_on_reset_data_button_pressed"]
 [connection signal="pressed" from="OptionsLayout/BackButton" to="." method="_on_back_button_pressed"]
