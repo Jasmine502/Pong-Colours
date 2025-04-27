@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://bnb1ocl1mo5qm"
+path="res://.godot/imported/Achievement Unlocked.ogg-59ab6078e1040783cae92b097d735b1c.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sfx/Achievement Unlocked.ogg"
+dest_files=["res://.godot/imported/Achievement Unlocked.ogg-59ab6078e1040783cae92b097d735b1c.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

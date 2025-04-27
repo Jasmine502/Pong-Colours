@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://oy2yh04iraw4"
+path="res://.godot/imported/Paddle Hit.ogg-01e969640a615f1a4385d9fec0dbeebb.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sfx/Paddle Hit.ogg"
+dest_files=["res://.godot/imported/Paddle Hit.ogg-01e969640a615f1a4385d9fec0dbeebb.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

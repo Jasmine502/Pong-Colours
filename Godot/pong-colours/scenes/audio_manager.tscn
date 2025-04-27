@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://c3j8ijvd3lho6"]
+[gd_scene load_steps=25 format=3 uid="uid://c3j8ijvd3lho6"]
 
 [ext_resource type="Script" uid="uid://btjf22o6q8fbh" path="res://scripts/audio_manager.gd" id="1_8qd8g"]
 [ext_resource type="AudioStream" uid="uid://chqenrfpqi06f" path="res://assets/music/3.ogg" id="2_m1k83"]
@@ -18,10 +18,25 @@
 [ext_resource type="AudioStream" uid="uid://j452mqwllv3g" path="res://assets/music/Violet.ogg" id="16_fcxyy"]
 [ext_resource type="AudioStream" uid="uid://ds1owu0rbvdff" path="res://assets/music/WOWEE.ogg" id="17_1y43m"]
 [ext_resource type="AudioStream" uid="uid://cgoh0n3xrg2lb" path="res://assets/music/XTRA-ORBIT.ogg" id="18_n1t8p"]
+[ext_resource type="AudioStream" uid="uid://oy2yh04iraw4" path="res://assets/sfx/Paddle Hit.ogg" id="19_ovaav"]
+[ext_resource type="AudioStream" uid="uid://d2d4ltnxk2eb3" path="res://assets/sfx/Reset Data.ogg" id="20_thanh"]
+[ext_resource type="AudioStream" uid="uid://cct02wrjpho7i" path="res://assets/sfx/UI Button Click.ogg" id="21_nplbh"]
+[ext_resource type="AudioStream" uid="uid://bnb1ocl1mo5qm" path="res://assets/sfx/Achievement Unlocked.ogg" id="22_24ib7"]
+[ext_resource type="AudioStream" uid="uid://dia5fwcubnl40" path="res://assets/sfx/Ball Wall Bounce.ogg" id="23_kr8a2"]
+[ext_resource type="AudioStream" uid="uid://c4i1adr5ias48" path="res://assets/sfx/Score Point.ogg" id="24_2agnf"]
 
 [node name="AudioManager" type="Node"]
 script = ExtResource("1_8qd8g")
 music_streams = Array[AudioStream]([ExtResource("2_m1k83"), ExtResource("3_oummu"), ExtResource("4_hssp1"), ExtResource("5_8b11i"), ExtResource("6_u6qdm"), ExtResource("7_f6jxr"), ExtResource("8_ovaav"), ExtResource("9_thanh"), ExtResource("10_nplbh"), ExtResource("11_24ib7"), ExtResource("12_kr8a2"), ExtResource("13_2agnf"), ExtResource("14_yt2vs"), ExtResource("15_2fqsb"), ExtResource("16_fcxyy"), ExtResource("17_1y43m"), ExtResource("18_n1t8p")])
+sfx_paddle_hit = ExtResource("19_ovaav")
+sfx_reset_data = ExtResource("20_thanh")
+sfx_button_click = ExtResource("21_nplbh")
+sfx_achievement_unlocked = ExtResource("22_24ib7")
+sfx_wall_bounce = ExtResource("23_kr8a2")
+sfx_score_point = ExtResource("24_2agnf")
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
 bus = &"Music"
+
+[node name="SFXPlayer" type="AudioStreamPlayer" parent="."]
+bus = &"SFX"

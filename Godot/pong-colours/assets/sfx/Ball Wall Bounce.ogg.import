@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://dia5fwcubnl40"
+path="res://.godot/imported/Ball Wall Bounce.ogg-ac841797f6afe8b71c74994e0ba86299.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/sfx/Ball Wall Bounce.ogg"
+dest_files=["res://.godot/imported/Ball Wall Bounce.ogg-ac841797f6afe8b71c74994e0ba86299.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
