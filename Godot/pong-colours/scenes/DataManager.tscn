@@ -49,7 +49,7 @@
 [ext_resource type="Texture2D" uid="uid://iwbaaxa3l44h" path="res://assets/paddles/colours/YELLOW.png" id="47_g67x1"]
 [ext_resource type="Texture2D" uid="uid://del35wt8104us" path="res://assets/paddles/colours/ZENCHUA.png" id="48_0ivep"]
 
-[node name="DataManager" type="Node2D"]
+[node name="DataManager" type="Node"]
 script = ExtResource("1_d8a4k")
 required_pride_paddle_textures = Array[Texture2D]([ExtResource("2_bhsjc"), ExtResource("3_mr1xy"), ExtResource("4_4y31o"), ExtResource("5_nvo8f"), ExtResource("6_5ba7c"), ExtResource("7_rb3v0"), ExtResource("8_rnyky"), ExtResource("9_f5fxh"), ExtResource("10_qp2rk"), ExtResource("11_5veik"), ExtResource("12_sabm3"), ExtResource("13_avek3"), ExtResource("14_qhiie"), ExtResource("15_jc2hi"), ExtResource("16_7lnhn"), ExtResource("17_i27t1"), ExtResource("18_23trb"), ExtResource("19_jx53k"), ExtResource("20_wpunf")])
 required_colour_paddle_textures = Array[Texture2D]([ExtResource("21_s3cik"), ExtResource("22_o07mb"), ExtResource("23_mdrvq"), ExtResource("24_ccarw"), ExtResource("25_ev4w5"), ExtResource("26_aqemp"), ExtResource("27_w77x1"), ExtResource("28_dbmo1"), ExtResource("29_nib8b"), ExtResource("30_nxqi3"), ExtResource("31_ddihe"), ExtResource("32_qfi1m"), ExtResource("33_5xcx2"), ExtResource("34_23v6p"), ExtResource("35_il2hx"), ExtResource("36_5d18a"), ExtResource("37_05wxu"), ExtResource("38_j1wl1"), ExtResource("39_avv34"), ExtResource("40_y133b"), ExtResource("41_wpyb1"), ExtResource("42_ulffg"), ExtResource("43_bqngo"), ExtResource("44_le07m"), ExtResource("45_imufp"), ExtResource("46_f0tp0"), ExtResource("47_g67x1"), ExtResource("48_0ivep")])

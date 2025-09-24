@@ -18,7 +18,7 @@ config/icon="uid://cmjymqs1yr762"
 [autoload]
 
 AudioManager="*res://scenes/audio_manager.tscn"
-DataManager="*res://scripts/data_manager.gd"
+DataManager="*res://scenes/DataManager.tscn"
 
 [display]
 
